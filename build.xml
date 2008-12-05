@@ -16,6 +16,7 @@
 <!-- http://www.j2mepolish.org                                -->
 <!--                                                          -->
 <!-- Have fun!                                                -->
+
 <project 
 	name="MYCallsign" 
 	default="j2mepolish">
