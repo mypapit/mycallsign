@@ -14,9 +14,8 @@
 <!--                                                          -->
 <!-- The full documentation can be found at                   -->
 <!-- http://www.j2mepolish.org                                -->
-<!--                                                          -->
+<!--       h9p8p3e8                                                   -->
 <!-- Have fun!                                                -->
-
 <project 
 	name="MYCallsign" 
 	default="j2mepolish">
@@ -59,13 +58,17 @@
 	
 				icon="i.png"
 				version="2.0" 
-				jarname="${polish.vendor}-${polish.name}-mycallsign.jar" 
+				jarname="${polish.vendor}-${polish.name}-mycallsign20.jar" 
 				copyright="Corp 2008 Mohammad Hafiz Ismail (9w2wtf)"
 			/>
 				
 				
 			<deviceRequirements>
+				<!--
 				<requirement name="Identifier" value="Plain/Device, Nokia/Series60E2FP1, Nokia/Series40Midp2, Sony-Ericsson/Z550, Motorola/V3x, Plain/Bare" />
+			-->
+			<requirement name="Identifier" value="Plain/Device" />
+			
 			</deviceRequirements>
 			<build usePolishGui="false" fullscreen="menu">
 				
@@ -73,16 +76,18 @@
 				<packager name="7zip">
 						<parameter name="compression" value="maximum" />
 						<parameter name="passes" value="4" />
-						<parameter name="fastbytes" value="258" />
+						<parameter name="fastbytes" value="255" />
 				</packager>
 			
 				<midlet class="MYCallsign" icon="i.png" name="MYCallsign" />
 				<variables>
 					<variable name="polish.TextField.suppressDeleteCommand" value="true" if="polish.key.ClearKey:defined" />
 				</variables>
+				
 				<obfuscator name="ProGuard">
 					<parameter name="optimize" value="true" />
 				</obfuscator>
+		 
 			</build>
 			
 		</j2mepolish>

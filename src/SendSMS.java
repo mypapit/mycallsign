@@ -86,9 +86,10 @@ boolean prob=false;
 			prob=true;
 		}
 
-		display.setCurrent(midlet.form);
+		
 		if (prob==false){
 			midlet.showAlert("Definition sent!");
+			display.setCurrent(midlet.form);
 		}
 		midlet.stringbuffer = null;
 		midlet.sendResult = null;

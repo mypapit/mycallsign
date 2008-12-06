@@ -33,7 +33,10 @@ import javax.microedition.midlet.*;
 import javax.microedition.lcdui.*;
 import javax.microedition.io.*;
 import java.io.*;
+
 import net.mypapit.java.StringTokenizer;
+import net.mypapit.java.MRU;
+
 
 public class MYCallsign extends MIDlet implements CommandListener, ItemCommandListener {
 
@@ -44,7 +47,15 @@ Form form, frmCallsign;
 AboutForm aboutform;
 Display display;
 StringBuffer stringbuffer;
+	
+/*
+MRUCache mrucache;
+MRUSerialize mrulist;
+*/
 
+CallsignInfo callsigninfo;
+
+	
 //#if polish.api.wmapi	
 SendResult sendResult;
 //#endif
@@ -56,9 +67,9 @@ public MYCallsign(){
 	tfCS = new TextField("Callsign","",7,TextField.ANY);
 	tfCS.setLayout(tfCS.LAYOUT_EXPAND);
 		
-	
 	tfCS.setItemCommandListener(this);
 	
+	callsigninfo = new CallsignInfo();
 	
 	cmdSearch = new Command("Search",Command.ITEM,1);
 	cmdEXIT = new Command("Exit",Command.EXIT,99);
@@ -69,7 +80,7 @@ public MYCallsign(){
 	cmdSend = new Command("Send",Command.SCREEN,4);
 	//#endif
 	form = new Form("Malaysian Callsign Search");
-	frmCallsign = new Form("Callsign Info");
+	
 	form.append(siHelp);
 	form.append(tfCS);
 	//form.addCommand(cmdSearch);
@@ -79,7 +90,10 @@ public MYCallsign(){
 	display = Display.getDisplay(this);
 	
 	tfCS.addCommand(cmdSearch);
-
+	/*
+	mrucache = new MRUCache();
+	mrulist = mrucache.load();
+*/
 
 }
 
@@ -123,9 +137,31 @@ public void commandAction(Command cmd, Displayable disp) {
 				showAlert("Please enter a valid callsign");
 				return;
 		}
+		
+		/*
+		 CallsignInfo csinfo;
+		csinfo = (CallsignInfo) mrulist.get(tfCS.getString());
+		showAlert(csinfo.handle+" wtf\n");
+		if (csinfo != null) {
+				processCallsignInfo(csinfo.toSB());
+				System.out.println("from cache");
+				showAlert("fucked!");
+				return;
+		}
+		 */
+		
+		
 			GetData getdata = new GetData(this);
 			getdata.start();
-	} else if (cmd == cmdBack) {
+			System.out.println("from internet");
+	} 
+	//#if polish.api.wmapi
+	else if ( (disp == sendResult) && (cmd == cmdBack) ) {
+			display.setCurrent(frmCallsign);
+	}
+	//#endif
+		
+		else if (cmd == cmdBack) {
 			display.setCurrent(form);
 	} else if (cmd == cmdAbout) {
 		aboutform = new AboutForm("About","MYCallsign 2.0","/i.png");
@@ -141,14 +177,14 @@ public void commandAction(Command cmd, Displayable disp) {
 	//#if polish.api.wmapi
 	else if (cmd == cmdSend) {
 			sendResult = new SendResult();
-		sendResult.addCommand(cmdSMS);
+		//sendResult.addCommand(cmdSMS);
+		sendResult.tfPhoneNo.addCommand(cmdSMS);
+		sendResult.tfPhoneNo.setItemCommandListener(this);
 		sendResult.addCommand(cmdBack);
 		sendResult.setCommandListener(this);
 		display.setCurrent(sendResult);
 		
-	} else if (cmd == cmdSMS) {
-			sendSMS();
-	}
+	} 
 	//#endif
 
 }
@@ -164,6 +200,12 @@ public void commandAction(Command cmd, Item item) {
 
 	}
 	
+	//#if polish.api.wmapi
+	else if (cmd == cmdSMS) {
+			sendSMS();
+	}
+	//#endif
+	
 }
 
 
@@ -173,6 +215,7 @@ public void processCallsignInfo(String sb) {
 
 	StringItem handle,callsign,apparatus,expiry;
 	
+	frmCallsign = new Form("Callsign Info");
 	
 	StringTokenizer tok = new StringTokenizer(sb,"||");
 	
@@ -190,6 +233,10 @@ public void processCallsignInfo(String sb) {
 	apparatus.setLayout(handle.LAYOUT_EXPAND);
 	expiry.setLayout(handle.LAYOUT_EXPAND);	
 	
+	callsigninfo.add(handle.getText(),callsign.getText(),apparatus.getText(),expiry.getText());
+	
+	
+		
 	stringbuffer = new StringBuffer("");
 	
 	stringbuffer.append(handle.getText()+"\n");
@@ -207,7 +254,16 @@ public void processCallsignInfo(String sb) {
 	frmCallsign.setCommandListener(this);
 	
 	display.setCurrent(frmCallsign);
-	
+	/*try {
+		mrulist.put(callsigninfo.callsign,callsigninfo);
+		mrucache.save(mrulist);
+		//System.out.println("saving cache");
+		//showAlert("shitfucked!");
+	} catch (Exception ioex) {
+			ioex.printStackTrace();
+			showAlert(ioex.toString());
+	}
+	 */
 	
 }
 
@@ -303,10 +359,7 @@ public void run() {
 					}
 				
 					midlet.processCallsignInfo(sb);
-					//midlet.form.append(sb);
-					//vectorized();
-					//midlet.saveCurrency(false,midlet.vector);
-					//midlet.display.setCurrent(midlet.form);
+					
 			} else if (conn.getResponseCode() == HttpConnection.HTTP_NOT_FOUND) {
 					midlet.showAlert("This application has expired. Please get a new version from http://m.ashamradio.com/");
 
