@@ -32,6 +32,7 @@
 import javax.microedition.midlet.*;
 import javax.microedition.lcdui.*;
 import javax.microedition.io.*;
+import javax.microedition.rms.*;
 import java.io.*;
 
 import net.mypapit.java.StringTokenizer;
@@ -42,11 +43,13 @@ public class MYCallsign extends MIDlet implements CommandListener, ItemCommandLi
 
 
 TextField tfCS;
-Command cmdSearch, cmdEXIT,cmdBack,cmdAbout,cmdSMS, cmdSend;
+Command cmdSearch, cmdEXIT,cmdBack,cmdAbout,cmdSMS, cmdSend,cmdProperties;
 Form form, frmCallsign;
 AboutForm aboutform;
 Display display;
 StringBuffer stringbuffer;
+Storage storage;
+//StringBuffer log;
 	
 /*
 MRUCache mrucache;
@@ -62,12 +65,15 @@ SendResult sendResult;
 	
 public MYCallsign(){
 	
+//	log = new StringBuffer("");
+	
 	StringItem siHelp = new StringItem("Information","Start by entering ham callsign that you wish to enquire");
 	siHelp.setLayout(siHelp.LAYOUT_EXPAND | siHelp.LAYOUT_NEWLINE_AFTER);
 	tfCS = new TextField("Callsign","",7,TextField.ANY);
 	tfCS.setLayout(tfCS.LAYOUT_EXPAND);
+	
 		
-	tfCS.setItemCommandListener(this);
+	
 	
 	callsigninfo = new CallsignInfo();
 	
@@ -79,6 +85,8 @@ public MYCallsign(){
 	cmdSMS = new Command("SMS",Command.SCREEN,5);
 	cmdSend = new Command("Send",Command.SCREEN,4);
 	//#endif
+	cmdProperties = new Command("Properties",Command.SCREEN,50);
+	
 	form = new Form("Malaysian Callsign Search");
 	
 	form.append(siHelp);
@@ -86,10 +94,20 @@ public MYCallsign(){
 	//form.addCommand(cmdSearch);
 	form.addCommand(cmdEXIT);
 	form.addCommand(cmdAbout);
+	form.addCommand(cmdProperties);
 	form.setCommandListener(this);
 	display = Display.getDisplay(this);
 	
 	tfCS.addCommand(cmdSearch);
+	tfCS.setItemCommandListener(this);
+	
+
+	
+
+
+//	log.append("wtfakap\n");
+	
+	
 	/*
 	mrucache = new MRUCache();
 	mrulist = mrucache.load();
@@ -101,6 +119,7 @@ public MYCallsign(){
 public void startApp(){
 
 	display.setCurrent(form);
+	storage = new Storage();
 }
 
 
@@ -109,7 +128,7 @@ public void pauseApp(){
 }
 
 public void destroyApp(boolean flag) {
-
+	storage.close();
 	notifyDestroyed();
 }
 
@@ -138,22 +157,7 @@ public void commandAction(Command cmd, Displayable disp) {
 				return;
 		}
 		
-		/*
-		 CallsignInfo csinfo;
-		csinfo = (CallsignInfo) mrulist.get(tfCS.getString());
-		showAlert(csinfo.handle+" wtf\n");
-		if (csinfo != null) {
-				processCallsignInfo(csinfo.toSB());
-				System.out.println("from cache");
-				showAlert("fucked!");
-				return;
-		}
-		 */
-		
-		
-			GetData getdata = new GetData(this);
-			getdata.start();
-			System.out.println("from internet");
+
 	} 
 	//#if polish.api.wmapi
 	else if ( (disp == sendResult) && (cmd == cmdBack) ) {
@@ -164,7 +168,7 @@ public void commandAction(Command cmd, Displayable disp) {
 		else if (cmd == cmdBack) {
 			display.setCurrent(form);
 	} else if (cmd == cmdAbout) {
-		aboutform = new AboutForm("About","MYCallsign 2.0","/i.png");
+		aboutform = new AboutForm("About","MYCallsign "+this.getAppProperty("MIDlet-Version"),"/i.png");
 		aboutform.addCommand(cmdBack);
 		
 		aboutform.setHyperlink("http://m.ashamradio.com",this);
@@ -173,7 +177,51 @@ public void commandAction(Command cmd, Displayable disp) {
 		aboutform.append("Malaysian Callsign Information");
 		aboutform.append("\n\nThis program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License version 2.0");
 		display.setCurrent(aboutform);
-	} 
+	} else if (cmd == cmdProperties) {
+			Form form = new Form("MYCallsign Properties");
+			StringItem siAccess;
+		
+			StringItem siApp = new StringItem("Release",""+this.getAppProperty("MIDlet-Name")+" "+this.getAppProperty("MIDlet-Version"));
+			StringItem siPlatform = new StringItem("Platform",""+System.getProperty("microedition.platform"));
+			//#ifdef polish.group.Series60 
+			StringItem siNetwork = new StringItem("Network ID",""+System.getProperty("com.nokia.mid.networkid"));
+			//StringItem siIMSI = new StringItem("IMSI",""+System.getProperty("com.nokia.mid.IMSI"));
+		//#endif										  
+			StringItem siStorage = new StringItem("Storage Used",""+ storage.getSize() +" bytes"); 
+			StringItem siStorageAvail = new StringItem("Storage Available",""+ storage.getSizeAvailable()+ " bytes");
+			
+			try {
+				siAccess = new StringItem("Number of Access",""+storage.getRecords());
+			} catch (Exception ex) {
+				siAccess = new StringItem("Number of Access","N/A");
+			}
+			
+			
+			siApp.setLayout(StringItem.LAYOUT_EXPAND);
+			siPlatform.setLayout(StringItem.LAYOUT_EXPAND);
+			//#ifdef polish.group.Series60 
+			siNetwork.setLayout(StringItem.LAYOUT_EXPAND);
+			//siIMSI.setLayout(StringItem.LAYOUT_EXPAND);
+			//#endif
+			siStorage.setLayout(StringItem.LAYOUT_EXPAND);
+			siStorageAvail.setLayout(StringItem.LAYOUT_EXPAND);
+			siAccess.setLayout(StringItem.LAYOUT_EXPAND);
+	
+			form.append(siApp);
+			form.append(siPlatform);
+		//#ifdef polish.group.Series60 	
+		form.append(siNetwork);
+			//form.append(siIMSI);
+		//#endif
+			form.append(siAccess);
+			form.append(siStorage);
+			form.append(siStorageAvail);
+			
+			form.addCommand(cmdBack);
+			form.setCommandListener(this);
+			display.setCurrent(form);
+			
+	}
 	//#if polish.api.wmapi
 	else if (cmd == cmdSend) {
 			sendResult = new SendResult();
@@ -183,8 +231,7 @@ public void commandAction(Command cmd, Displayable disp) {
 		sendResult.addCommand(cmdBack);
 		sendResult.setCommandListener(this);
 		display.setCurrent(sendResult);
-		
-	} 
+} 
 	//#endif
 
 }
@@ -195,9 +242,44 @@ public void commandAction(Command cmd, Item item) {
 				showAlert("Please enter a valid callsign");
 				return;
 		}
-			GetData getdata = new GetData(this);
-			getdata.start();
+		try {
+				RecordEnumeration renum;
+				CallsignInfo csinfo;
+			//	log.append("\nin try csinfo...begin");
+				csinfo = new CallsignInfo();
+			
+			
+				renum = storage.find(tfCS.getString());
+				csinfo.write(renum.nextRecord());
+				
+			    if ((storage.getRecords() < 1) && (renum.numRecords() < 1)) {
+							//	log.append("\nfrom internet - nothing happened");
+								GetData getdata = new GetData(this);
+			
+								getdata.start();
+								return;
 
+				}
+			
+				processCallsignInfo(csinfo.toSB(),false);
+			//	log.append("\nin try csinfo end...");
+			
+				return;
+					
+		} catch (Exception ex)
+		{
+			//log.append("Exception occur in csinfo");
+	
+		//	log.append("\nfrom internet - exception occured");
+			GetData getdata = new GetData(this);
+			
+			getdata.start();		
+		} finally {
+		
+		
+
+			
+		}
 	}
 	
 	//#if polish.api.wmapi
@@ -211,7 +293,7 @@ public void commandAction(Command cmd, Item item) {
 
 
 
-public void processCallsignInfo(String sb) {
+public void processCallsignInfo(String sb, boolean save) {
 
 	StringItem handle,callsign,apparatus,expiry;
 	
@@ -235,6 +317,14 @@ public void processCallsignInfo(String sb) {
 	
 	callsigninfo.add(handle.getText(),callsign.getText(),apparatus.getText(),expiry.getText());
 	
+	if (save) {
+		try {
+				storage.save(callsigninfo.read());
+		} catch (Exception ex) {
+		//	log.append("exeption while saving storage");
+		
+		}
+	}
 	
 		
 	stringbuffer = new StringBuffer("");
@@ -249,21 +339,16 @@ public void processCallsignInfo(String sb) {
 	frmCallsign.append(apparatus);
 	frmCallsign.append(expiry);
 	
+//	log.append(callsigninfo.callsign);
+	
+	//frmCallsign.append("\n"+log.toString());
+	
 	frmCallsign.addCommand(cmdBack);
 	frmCallsign.addCommand(cmdSend);
 	frmCallsign.setCommandListener(this);
 	
 	display.setCurrent(frmCallsign);
-	/*try {
-		mrulist.put(callsigninfo.callsign,callsigninfo);
-		mrucache.save(mrulist);
-		//System.out.println("saving cache");
-		//showAlert("shitfucked!");
-	} catch (Exception ioex) {
-			ioex.printStackTrace();
-			showAlert(ioex.toString());
-	}
-	 */
+
 	
 }
 
@@ -358,7 +443,7 @@ public void run() {
 							return;
 					}
 				
-					midlet.processCallsignInfo(sb);
+					midlet.processCallsignInfo(sb,true);
 					
 			} else if (conn.getResponseCode() == HttpConnection.HTTP_NOT_FOUND) {
 					midlet.showAlert("This application has expired. Please get a new version from http://m.ashamradio.com/");
