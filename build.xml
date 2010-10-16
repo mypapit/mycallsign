@@ -1,5 +1,5 @@
 <!-- This file controls the build process.                    -->
-<!-- The most important target is the j2mepolish-target,      -->
+<!-- The most importtarget is the j2mepolish-target,      -->
 <!-- which controls for what devices the application should   -->
 <!-- be created and so on.                                    -->
 <!--                                                          -->
@@ -25,13 +25,18 @@
 	
 	<!-- The polish.home property needs to point to the directory -->
 	<!-- containing the J2ME Polish installation.                 -->
-	<!--
-<property name="polish.home" location="D:\PROGRA~1\J2ME-Polish" />
--->	
-	<!-- import global properties                                 -->
+
+<property name="polish.home" location="D:\j2mepolish" />
+
+<property name="wtk.home" location="d:\wtk" />
+<property name="android.home" location="D:\android" />
+
+	<!-- import global properties                                
 	<property file="${polish.home}/global.properties" />
 <property name="polish.home" location="/home/mypapit/j2mewtk/polish" />
-<property name="wtk.home" location="/home/mypapit/wtk252" />
+-->
+
+
 
 		
 	<!-- the device for the test mode - you can define it on the command-line
@@ -57,9 +62,9 @@
 				infoUrl="http://m.ashamradio.com"
 	
 				icon="i.png"
-				version="2.0" 
-				jarname="${polish.vendor}-${polish.name}-mycallsign20.jar" 
-				copyright="Corp 2008 Mohammad Hafiz Ismail (9w2wtf)"
+				version="2.1" 
+				jarname="${polish.vendor}-${polish.name}-mycallsign21.jar" 
+				copyright="Corp 2010 Mohammad Hafiz Ismail (9W2WTF)"
 			/>
 				
 				
@@ -67,18 +72,20 @@
 				<!--
 				<requirement name="Identifier" value="Plain/Device, Nokia/Series60E2FP1, Nokia/Series40Midp2, Sony-Ericsson/Z550, Motorola/V3x, Plain/Bare" />
 			-->
-			<requirement name="Identifier" value="Plain/Device" />
+			<requirement name="Identifier" value="Plain/Device, Nokia/E71,Nokia/Series60E3,Nokia/5310,Sony-Ericsson/W910" />
+			
 			
 			</deviceRequirements>
 			<build usePolishGui="false" fullscreen="menu">
 				
-			
+<!--			
 				<packager name="7zip">
 						<parameter name="compression" value="maximum" />
 						<parameter name="passes" value="4" />
 						<parameter name="fastbytes" value="255" />
 				</packager>
-			
+
+-->			
 				<midlet class="MYCallsign" icon="i.png" name="MYCallsign" />
 				<variables>
 					<variable name="polish.TextField.suppressDeleteCommand" value="true" if="polish.key.ClearKey:defined" />

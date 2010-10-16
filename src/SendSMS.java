@@ -12,11 +12,13 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
- * MYCallsign 2.0 <info@mypapit.net>
- * Copyright 2008 Mohammad Hafiz bin Ismail (9w2wtf). All rights reserved.
+ * MYCallsign 2.1 <info@mypapit.net> (9w2wtf)
+ * Copyright 2010 Mohammad Hafiz bin Ismail (9w2wtf). All rights reserved.
+ *
+ * MYCallsign logo was created by piju (http://9w2pju.hamradio.my)
  *
  * SendSMS.java
- * Send SMS action thread 
+ * Send SMS action thread
  */
 
 //#if polish.api.wmapi
@@ -64,7 +66,7 @@ boolean prob=false;
 		TextMessage msg =
 		(TextMessage)conn.newMessage(MessageConnection.TEXT_MESSAGE);
 		//sb.append("Definition for : " + midlet.tf.getString() +" \n\n" );
-		
+
 		midlet.stringbuffer.append("\n-----------\n[MYCallsign]\nhttp://m.ashamradio.com/");
 		msg.setPayloadText(midlet.stringbuffer.toString());
 		conn.send(msg);
@@ -86,7 +88,7 @@ boolean prob=false;
 			prob=true;
 		}
 
-		
+
 		if (prob==false){
 			midlet.showAlert("Definition sent!");
 			display.setCurrent(midlet.form);

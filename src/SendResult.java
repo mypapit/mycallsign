@@ -12,8 +12,10 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
- * MYCallsign 2.0 <info@mypapit.net>
- * Copyright 2008 Mohammad Hafiz bin Ismail (9w2wtf). All rights reserved.
+ * MYCallsign 2.1 <info@mypapit.net> (9w2wtf)
+ * Copyright 2010 Mohammad Hafiz bin Ismail (9w2wtf). All rights reserved.
+ *
+ * MYCallsign logo was created by piju (http://9w2pju.hamradio.my)
  *
  * SendResult.java
  * Send SMS, Bluetooh Text interface..
@@ -39,7 +41,7 @@ public SendResult() {
 	//this.addCommand(cmdBack);
 
 	StringItem si = new StringItem("Instruction","Enter phone number to send the callsign info to");
-//#style .directNumber
+
 	tfPhoneNo = new TextField("Phone Number ","",20,TextField.PHONENUMBER);
 
 	this.append(si);
